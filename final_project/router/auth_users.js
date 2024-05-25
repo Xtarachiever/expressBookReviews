@@ -43,14 +43,17 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
+
+    const username = req.session.authorization.username	
+
     const isbn = req.params.isbn;
     const book = books[isbn];
   
     if (book) {
-      const review = req.body.review;
+        let review = req.body.review;
+        let reviewer = username;
       if (review) {
-        const reviewId = Date.now().toString();
-        book.reviews[reviewId] = (review);
+        book.reviews[reviewer] = (review);
         res.status(200).send(`Book with ISBN ${isbn} has been updated with a new review`);
       } else {
         res.status(400).send("A review is required.");
@@ -64,10 +67,11 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 regd_users.delete('/auth/review/:isbn',(req,res)=>{
     const isbn = req.params.isbn;
     const book = books[isbn];
-  
+
+    const username = req.session.authorization.username	
     if (book) {
-      const review = req.body.review;
-      
+      delete book.reviews[username]
+      return res.status(200).send('Review successfully deleted')
     } else {
       res.status(404).send("Book not found.");
     }
